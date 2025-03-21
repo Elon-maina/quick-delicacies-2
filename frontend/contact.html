@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Menu</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="header">
+        <h1>QUICK DELICACIES</h1>
+    <a href="cart.html" class="cart-icon">
+        <div class="cart-counter" id="cart-counter">0</div>
+        <i class="fas fa-shopping-cart"></i>
+    </a>
+    </div>
+    <!-- Sidebar Navigation -->
+    <label>
+        <input class="checkbox" type="checkbox">
+        <div class="toggle">
+            <span class="top-line common"></span>
+            <span class="mid-line common"></span>
+            <span class="bottom-line common"></span>
+        </div>
+        <div class="home">
+            <nav>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="index.html">Menu</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><button class="logout" onclick="logout()">Logout</button></li>
+                </ul>
+            </nav>
+        </div>
+    </label>
+    <div class="contact"><h1>contact us</h1></div>
+    <script>
+        function logout() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            window.location.href = "login.html";
+        }
+    </script>
+    <script src="script.js"></script>
+    <style>
+        .contact{
+            width: 200px;
+            height: 200px;
+            background-color: rgb(255, 255, 255);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Add New Dish</h1>
+    <form id="addForm">
+        <input type="text" name="name" placeholder="Dish Name" required>
+        <input type="number" name="price" placeholder="Price" required>
+        <input type="file" name="image" required>
+        <button type="submit">Add Dish</button>
+    </form>
+    <h2>Delete Dish</h2>
+    <form id="deleteForm">
+        <input type="text" name="name" placeholder="Dish Name" required>
+        <button type="submit">Delete Dish</button>
+    </form>
+    <script>
+        // Add Dish 
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            await fetch('http://localhost:5000/menu/add', {
+                method: 'POST',
+                body: formData
+            });
+            alert('Dish added successfully!');
+        });
+        // Delete Dish 
+        document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const dishName = formData.get('name');
+
+            const response = await fetch(`http://localhost:5000/menu/delete`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: dishName })
+            });
+            const result = await response.json();
+            alert(result.message);
+        });
+    </script>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+h1, h2 {
+    color: #000000;
+    border-bottom: 2px solid #fff;
+    padding-bottom: 10px;
+    display: inline-block;
+}
+form {
+    background: #111;
+    padding: 20px;
+    margin: 20px auto;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+}
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+input {
+    background: #222;
+    color: #fff;
+    border: 1px solid #555;
+}
+input::placeholder {
+    color: #aaa;
+}
+button {
+    background: #fff;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+button:hover {
+    background: #ccc;
+    color: #000;
+}
+/* Responsive */
+@media (max-width: 400px) {
+    form {
+        width: 90%;
+    }
+}
+    </style>
+</body>
+</html>
