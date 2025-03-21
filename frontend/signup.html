@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Signup</title>
+</head>
+<body>
+    <h2>Signup</h2>
+    <form id="signup-form">
+        <input type="text" id="name" placeholder="Name" required><br>
+        <input type="email" id="email" placeholder="Email" required><br>
+        <input type="password" id="password" placeholder="Password" required><br>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required><br>
+        <button type="submit">Signup</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+    <script>
+        document.getElementById("signup-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            const response = await fetch("http://localhost:5000/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password, confirmPassword })
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+            if (response.ok) window.location.href = "login.html";
+        });
+    </script>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    .container {
+        text-align: center;
+    }
+    form {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.2);
+        width: 320px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    h2 {
+        margin-bottom: 10px;
+        font-size: 26px;
+        color: #000000;
+        text-align: center;
+    }
+    input {
+        width: 90%;
+        padding: 10px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 5px;
+        background: #f8f7f7;
+        color: #000000;
+        outline: none;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        background: #ff9800;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #000;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #ff5722;
+    }
+    p {
+        margin-top: 20px;
+        font-size: 14px;
+        text-align: center;
+        color: #000;
+    }
+    a {
+        color: #0400ff;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    </style>
+</body>
+</html>

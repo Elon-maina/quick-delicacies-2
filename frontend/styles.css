@@ -1,0 +1,377 @@
+body,html{
+    margin: 0;
+    padding: 0;
+}
+/*header bar at top of home page */
+.header{
+    background-color: rgb(249, 249, 249);
+    margin: 0;   
+    font-weight: 500;
+    width: 100%;
+    position: fixed;
+    z-index: 50;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+}
+.header h1{
+    color: #000000;
+    margin-left: 30px;
+    padding: 30px;
+}
+.home-page h1{
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: dashed;
+    z-index: 1000;
+}
+.cart-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+    font-size: 24px;
+    text-decoration: none;
+    color: black;
+}
+.cart-counter{
+    background-color: #f07a13;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: -20px;
+    right: -20px;
+}
+.cart-counter p{
+    color: black;
+    font-size: large;
+}
+
+/* Style the menu container */
+#menu {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    padding-top: 120px;
+}
+
+/* Style individual food items */
+.menu-item {
+    width: 250px;
+    padding: 15px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.menu-item:hover {
+    transform: scale(1.05);
+}
+
+/* Style dish images */
+.dish-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Style dish name */
+.dish-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Style dish price */
+.dish-price {
+    font-size: 16px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Style Add to Cart button */
+.add-to-cart {
+    background-color: #f07a13;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+.add-to-cart:hover {
+    background: #ff7700;
+}
+#menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.food-item {
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    text-align: center;
+    width: 300px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.food-item img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+h3, p {
+    margin: 10px 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* sidebar navigation menu*/
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.home{
+    position: fixed;
+    padding-top: 70px;
+    width: 180px;
+    height: 100%;
+    transition: 0.5s ease;
+    background-color: rgb(241, 202, 150);
+    transform: translateX(-180px);
+    z-index: 75;
+}
+ul li{
+    list-style: none;
+}
+ul li a{
+    color: black;
+    padding: 10px;
+    transition: 0.2s ease-out;
+    display: block;
+    text-decoration: none;
+    font-weight: 500;
+}
+ul li:hover a{
+    color: rgb(12, 0, 250);
+    background-color: rgb(255, 255, 255);
+}
+.logout{
+    font-size: 15px;
+    background-color: rgb(241, 202, 150);
+    border: none;
+    font-weight: 700;
+    position: absolute;
+    bottom: 50px;
+    left: 40px;
+}
+.logout:hover{
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 4px;
+    transform: scale(1.17);
+}
+.checkbox{
+    display: none;
+    visibility: hidden;
+    -webkit-appearance: none;
+}
+.toggle{
+    position: fixed;
+    height: 40px;
+    width: 40px;
+    z-index: 100;
+    top: 20px;
+    left: 6px;
+    cursor: pointer;
+    border-radius: 2px;
+    background-color:  rgb(249, 249, 249);
+}
+.toggle .common{
+    position: absolute;
+    height: 2px;
+    width: 20px;
+    background-color: rgb(0, 0, 0);
+    border-radius: 5opx;
+    transition: 0.05s ease;
+}
+.toggle .top-line{
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.toggle .mid-line{
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.toggle .bottom-line{
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+input:checked ~.toggle{
+    background-color: rgb(241, 202, 150);
+}
+input:checked ~.toggle .top-line{
+    left: 2px;
+    top: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+}
+input:checked ~.toggle .bottom-line{
+    left: 2px;
+    top: 14px;
+    width: 25px;
+    transform: rotate(-45deg);
+}
+input:checked ~.toggle .mid-line{
+    opacity: 0;
+}
+input:checked ~ .home{
+    transform: translateX(0);
+    box-shadow: 0 0 10px rgb(214, 156, 31);
+}
+
+
+
+
+
+
+
+
+/* cart page #f07a13 */
+h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color:black;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+table {
+    width: 70%;
+    margin: 10px auto;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+thead {
+    background: #f07a13;
+    color: white;
+}
+
+td, th {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+th {
+    text-align: left;
+    font-weight: bold;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+.quantity-button {
+    background-color: white;
+    color: black;
+    padding: 5px 12px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.quantity-button:hover {
+    background-color: #f07a13;
+}
+.quantity{
+    text-align: center;
+    width: 60px;
+    height: 30px;
+    border: none;
+    font-size: 16px;
+}
+.remove-from-cart{
+    height: 30px;
+    width: 70px;
+    border: 1px solid black;
+    border-radius: 15px;
+    background-color: #ffffff;
+}
+.remove-from-cart:hover{
+    background-color: #f07a13;
+}
+
+#complete-order {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 35px;
+    margin-top: 20px;
+    border-radius: 25px;
+    background-color: #f07a13;
+    transition: background 0.3s;
+}
+
+#complete-order:hover {
+    background-color: #ff7700;
+    transform: scale(1.05);
+}
+/* everywhere where the input in number removes scroll buttons*/
+/* Hide number input spinners (Chrome, Safari, Edge, Opera) */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* Hide number input spinners (Firefox) */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+
+
+
+
+
+
