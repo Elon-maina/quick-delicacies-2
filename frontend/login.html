@@ -2,16 +2,36 @@
 <html lang="en">
 <head>
     <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <h2>Login</h2>
     <form id="login-form">
         <input type="email" id="email" placeholder="Email" required><br>
-        <input type="password" id="password" placeholder="Password" required><br>
+
+        <div class="input-container">
+            <input type="password" id="password" placeholder="Password" required>
+            <span class="toggle-password" id="eye1" onclick="togglePassword('password', 'eye1')">show</span>
+        </div>
+
         <button type="submit">Login</button>
     </form>
     <p>Don't have an account? <a href="signup.html">Signup</a></p>
+
     <script>
+        function togglePassword(inputId, eyeId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(eyeId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.innerText = "hide";
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.innerText = "show";
+            }
+        }
+
         document.getElementById("login-form").addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = document.getElementById("email").value;
@@ -21,88 +41,126 @@
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
-                    credentials: "include" //Ensures session cookies are sent & received
+                    credentials: "include" // Ensures session cookies are sent & received
                 });
                 const result = await response.json();
-                alert(result.message || result.error);
+
                 if (response.ok) {
-                    console.log("Login Successful:", result);
-                    window.location.href = "index.html"; //Redirect to home page
+                    Swal.fire({
+                        icon: "success",
+                        title: "Successfully Logged In",
+                        text: "Redirecting...",
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        window.location.href = "index.html"; // Redirect to home page
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Login Failed",
+                        text: result.error || "Invalid email or password",
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
                 }
             } catch (error) {
                 console.error("Login Error:", error);
-                alert("Login failed. Please try again.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Login failed. Please try again.",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             }
         });
     </script>
+
     <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #ffffff;
-        color: #ffffff;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    .container {
-        text-align: center;
-    }
-    form {
-        background: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 10px 10px 15px rgba(5, 5, 5, 0.2);
-        width: 320px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    h2 {
-        margin-bottom: 10px;
-        font-size: 26px;
-        color: #000000;
-        text-align: center;
-    }
-    input {
-        width: 90%;
-        padding: 10px;
-        margin: 10px 0;
-        border: none;
-        border-radius: 5px;
-        background: #fbf9f9;
-        color: #000000;
-        outline: none;
-    }
-    button {
-        width: 100%;
-        padding: 10px;
-        background: #ff9800;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        color: #000;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    button:hover {
-        background: #ff5722;
-    }
-    p {
-        margin-top: 20px;
-        font-size: 14px;
-        text-align: center;
-        color: #000;
-    }
-    a {
-        color: #0400ff;
-        text-decoration: none;
-    }
-    a:hover {
-        text-decoration: underline;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 10px 10px 15px rgba(5, 5, 5, 0.2);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            margin-bottom: 10px;
+            font-size: 26px;
+            color: #000000;
+            text-align: center;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: #fbf9f9;
+            color: #000000;
+            outline: none;
+            padding-right: 40px;
+        }
+        .input-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 14px;
+            color: #000000;
+            font-weight: bold;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #ff9800;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #000;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ff5722;
+        }
+        p {
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: center;
+            color: #000;
+        }
+        a {
+            color: #0400ff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </body>
 </html>
