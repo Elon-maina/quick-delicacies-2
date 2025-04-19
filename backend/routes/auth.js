@@ -45,6 +45,40 @@ router.post("/signup", async (req, res) => {
     }
 });
 
+// Email Verification Route
+router.post("/verify-email", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ error: "Email and OTP are required" });
+    }
+
+    // Check if OTP exists in the database
+    const query = "SELECT otp_code FROM users WHERE email = ? AND otp_code = ?";
+    db.query(query, [email, otp], (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (results.length === 0) {
+            return res.status(400).json({ error: "Invalid OTP" });
+        }
+
+        // Mark user as verified
+        const updateQuery = "UPDATE users SET verified = true WHERE email = ?";
+        db.query(updateQuery, [email], (updateErr) => {
+            if (updateErr) {
+                console.error("Update error:", updateErr);
+                return res.status(500).json({ error: "Verification update failed" });
+            }
+
+            res.json({ message: "Email verified successfully" });
+        });
+    });
+});
+
+
 // User Login (Ensures Session Works)
 router.post("/login", (req, res) => {
     const { email, password } = req.body;

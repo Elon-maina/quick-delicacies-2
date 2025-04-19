@@ -1,0 +1,77 @@
+@keyframes blink {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.whatsapp-icon {
+    position: fixed; /* Fix the position */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    background-color: #25D366; /* WhatsApp green color */
+    border-radius: 50%; /* Circular shape */
+    width: 60px; /* Width of the icon */
+    height: 60px; /* Height of the icon */
+    display: flex;
+    align-items: center; /* Center icon vertically */
+    justify-content: center; /* Center icon horizontally */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    z-index: 1000; /* Ensure it appears above other elements */
+    animation: blink 1s infinite; /* Apply blinking animation */
+}
+
+.whatsapp-icon:hover {
+    background-color: #128C7E; /* Darker green on hover */
+    animation: rotate 0.5s; /* Apply rotation on hover */
+}
+
+.whatsapp-icon a {
+    color: white; /* Icon color */
+    font-size: 30px; /* Icon size */
+    text-decoration: none; /* Remove underline */
+}
+footer {
+    background-color: #ee974a; /* Footer background color */
+    padding: 20px;
+    text-align: center;
+}
+
+footer p {
+    color: white; /* Copyright text color */
+    margin: 0 0 15px; /* Margin below the text */
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Uniform space between icons */
+}
+
+.icon {
+    color: black; /* Icon color */
+    font-size: 36px; /* Larger icon size */
+    text-decoration: none; /* No underline */
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.icon:hover {
+    color: #4CAF50; /* Change color on hover */
+}
+
+@media (max-width: 600px) {
+    .icon {
+        font-size: 28px; /* Smaller icons on mobile */
+    }
+}

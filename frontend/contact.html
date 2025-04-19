@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Menu</title>
+    <title>Contact Us - Quick Delicacies</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="contact.css">
+    <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <div class="header">
         <h1>QUICK DELICACIES</h1>
-    <a href="cart.html" class="cart-icon">
-        <div class="cart-counter" id="cart-counter">0</div>
-        <i class="fas fa-shopping-cart"></i>
-    </a>
+        <a href="cart.html" class="cart-icon">
+            <div class="cart-counter" id="cart-counter">0</div>
+            <i class="fas fa-shopping-cart"></i>
+        </a>
     </div>
     <!-- Sidebar Navigation -->
     <label>
@@ -36,25 +38,91 @@
             </nav>
         </div>
     </label>
-    <div class="contact"><h1>contact us</h1></div>
+    
+    <section class="contact-container">
+        <div class="contact-info">
+            <h2>Get in Touch</h2>
+            <p>We’d love to hear from you! Whether you have questions, feedback, or need assistance, feel free to reach out.</p>
+            <p><strong>📞 Phone:</strong> <a href="tel:+254797328901">+254 797 328 901</a></p>
+            <p><strong>📧 Email:</strong> <a href="mailto:quickdelicacies@gmail.com">quickdelicacies@gmail.com</a></p>
+            <p><strong>📍 Location:</strong> Nakuru, Njoro Kenya</p>
+        </div>
+
+        <div class="contact-form">
+            <h2>Send Us a Message</h2>
+            <form id="feedbackForm" onsubmit="sendFeedback(event)">
+                <input type="text" name="name" id="name" placeholder="Your Name" required>
+                <input type="email" name="email" id="email" placeholder="Your Email" required>
+                <textarea name="message" id="message" rows="5" placeholder="Your Message" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </section>
+    <div class="whatsapp-icon">
+        <a href="https://wa.me/254797328901?text=Hello%20Quick%20Delicacies!" target="_blank" aria-label="Chat on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+    <footer>
+        <p>&copy; 2025 Quick Delicacies. All Rights Reserved.</p>
+        <div class="social-icons">
+            <a href="https://wa.me/254797328901?text=Hello%20Quick%20Delicacies!" target="_blank" class="icon whatsapp" aria-label="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="https://facebook.com/" target="_blank" class="icon facebook" aria-label="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://twitter.com/" target="_blank" class="icon twitter" aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://youtube.com/" target="_blank" class="icon youtube" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+    </footer>
     <script>
         function logout() {
             localStorage.removeItem("token");
             localStorage.removeItem("userId");
             window.location.href = "login.html";
         }
-    </script>
-    <script src="script.js"></script>
-    <style>
-        .contact{
-            width: 200px;
-            height: 200px;
-            background-color: rgb(255, 255, 255);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+
+        async function sendFeedback(event) {
+            event.preventDefault();
+
+            const feedbackData = {
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value,
+                message: document.getElementById("message").value,
+            };
+
+            // Basic client-side validation
+            if (!feedbackData.name || !feedbackData.email || !feedbackData.message) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/Admin/feedback", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(feedbackData)
+                });
+
+                if (response.ok) {
+                    alert("Feedback submitted successfully!");
+                    document.getElementById("feedbackForm").reset(); // Reset the form
+                } else {
+                    alert("Failed to submit feedback.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while submitting your feedback.");
+            }
         }
-    </style>
+    </script>
+
 </body>
 </html>

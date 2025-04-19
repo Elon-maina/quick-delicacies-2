@@ -1,7 +1,9 @@
 //first create this database in sql bench
+
 CREATE DATABASE food_menu;
 
 //create a users table
+
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -10,6 +12,7 @@ CREATE TABLE users (
 );
 
 //create a menu table
+
 CREATE TABLE menu (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -18,6 +21,7 @@ CREATE TABLE menu (
 );
 
 //create a cart table
+
 CREATE TABLE cart (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,

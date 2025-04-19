@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Complete Your Payment</h2>
+        <p>Send <strong>Ksh <span id="payment-amount"></span></strong> to:</p>
+        
+        <div class="mpesa-box">
+            <span id="mpesa-number">0746848928</span>
+            <button onclick="copyNumber()">Copy</button>
+        </div>
+
+        <label>Paste M-Pesa Transaction Code:</label>
+        <input type="text" id="mpesa-code" placeholder="Enter Transaction Code">
+        <button class="btn-submit" id="submit-order" onclick="completeOrder()">Complete Order</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    // Ensure user is logged in before allowing payment
+    let userId = sessionStorage.getItem("userId");
+    if (!userId) {
+        Swal.fire({
+            icon: "warning",
+            title: "Not Logged In",
+            text: "Please log in before making a payment.",
+            showConfirmButton: true
+        }).then(() => {
+            window.location.href = "login.html"; // Redirect to login page
+        });
+        return;
+    }
+
+    // Retrieve total amount from URL
+    const params = new URLSearchParams(window.location.search);
+    const totalAmount = params.get("total");
+
+    if (totalAmount) {
+        document.getElementById("payment-amount").innerText = totalAmount;
+    } else {
+        document.getElementById("payment-amount").innerText = "N/A";
+    }
+});
+
+function copyNumber() {
+    let number = document.getElementById("mpesa-number").innerText;
+    navigator.clipboard.writeText(number).then(() => {
+        Swal.fire({
+            icon: "success",
+            title: "Copied!",
+            text: "M-Pesa number has been copied.",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000
+        });
+    });
+}
+
+async function completeOrder() {
+    let submitButton = document.getElementById("submit-order");
+    let transactionCode = document.getElementById("mpesa-code").value.trim();
+
+    // Validate M-Pesa transaction code
+    if (!transactionCode || transactionCode.length !== 10) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Code",
+            text: "Please enter a valid 10-character M-Pesa transaction code.",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2500
+        });
+        return;
+    }
+
+    // Disable button to prevent multiple submissions
+    submitButton.disabled = true;
+
+    // Retrieve user details from sessionStorage
+    let userId = sessionStorage.getItem("userId") || "";
+    let userName = sessionStorage.getItem("userName") || "";
+    let userEmail = sessionStorage.getItem("email") || "";
+    let phone = sessionStorage.getItem("phone") || "";
+    let residence = sessionStorage.getItem("residence") || "";
+    let room = sessionStorage.getItem("room") || "";
+
+    // Ensure user details are available
+    if (!userId || !userName || !userEmail) {
+        Swal.fire({
+            icon: "error",
+            title: "Missing Details",
+            text: "Some user details are missing. Please log in again.",
+            showConfirmButton: true
+        });
+        submitButton.disabled = false;
+        return;
+    }
+
+    // Retrieve cart items
+    let cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+
+    if (cartItems.length === 0) {
+        Swal.fire({
+            icon: "error",
+            title: "Cart Empty",
+            text: "Your cart is empty. Please add items before proceeding.",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000
+        });
+        submitButton.disabled = false;
+        return;
+    }
+
+    // Retrieve total amount
+    const totalAmount = document.getElementById("payment-amount").innerText;
+
+    // Prepare order details
+    let orderDetails = {
+        user_id: userId,
+        name: userName,
+        email: userEmail,
+        phone: phone,
+        residence: residence,
+        room: room,
+        amountPaid: totalAmount,
+        mpesaCode: transactionCode,
+        items: cartItems,
+        status: "Pending"
+    };
+
+    console.log("Order Details:", orderDetails); // Debugging log
+
+    try {
+    // Disable submit button to prevent multiple submissions
+    submitButton.disabled = true;
+
+    let response = await fetch("http://localhost:5000/api/orders/placeOrder", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(orderDetails)
+    });
+
+    let result = await response.json();
+
+    console.log("Server Response:", result); // Debugging log
+
+    if (response.ok) {
+        //Clear cart after successful order placement
+        localStorage.removeItem("cartItems");
+
+        Swal.fire({
+            icon: "success",
+            title: "Order Received",
+            text: "Your order will be delivered soon.",
+            showConfirmButton: false,
+            timer: 3000
+        }).then(() => {
+            window.location.href = "index.html"; // Redirect to homepage
+        });
+    } else {
+        throw new Error(result.message || "Failed to place order.");
+    }
+} catch (error) {
+    console.error("Error placing order:", error);
+
+    //Handle duplicate M-Pesa code error
+    if (error.message.includes("M-Pesa code has already been used")) {
+        Swal.fire({
+            icon: "error",
+            title: "Duplicate Code",
+            text: "This M-Pesa code has already been used. Please enter a new one.",
+            showConfirmButton: true
+        });
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error.message || "Something went wrong. Try again.",
+            showConfirmButton: true
+        });
+    }
+
+    //Re-enable submit button in case of an error
+    submitButton.disabled = false;
+    }
+}
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .mpesa-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f3ebe8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .mpesa-box span {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        button {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ff3c00;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+
+</body>
+</html>
