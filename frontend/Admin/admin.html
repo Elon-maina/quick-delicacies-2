@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="nav-bar">
+        <a href="admin.html">Update Menu</a>
+        <a href="orders.html">Orders</a>
+        <a href="feedback.html">Feedbacks</a>
+    </div>
     <h1>Add New Dish</h1>
     <form id="addForm">
         <input type="text" name="name" placeholder="Dish Name" required>
@@ -51,6 +56,8 @@ body {
     color: #fff;
     text-align: center;
     padding: 20px;
+    margin: 0;
+    padding: 0;
 }
 h1, h2 {
     color: #000000;
@@ -92,6 +99,20 @@ button {
 button:hover {
     background: #ccc;
     color: #000;
+}
+.nav-bar{
+    width: 100%;
+    height: 80px;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    top: 0;
+}
+.nav-bar a{
+    color: #ffffff;
+    text-decoration: none;
 }
 /* Responsive */
 @media (max-width: 400px) {

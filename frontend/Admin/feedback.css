@@ -1,0 +1,58 @@
+.feedback-container {
+    padding: 20px;
+}
+
+#feedback-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#feedback-table th, #feedback-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+/* Change header text color to black */
+#feedback-table th {
+    background-color: #f2f2f2;
+    color: black; /* Set header text color to black */
+}
+
+#feedback-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#feedback-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Button styles */
+button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Specific button styles */
+button.delete {
+    background-color: red;
+    color: white;
+}
+
+button.respond {
+    background-color: blue;
+    color: white;
+}
+
+
+/* Footer styling */
+footer {
+    position: relative;
+    clear: both;
+    padding: 10px 0;
+    text-align: center;
+    background-color: #f2f2f2;
+}

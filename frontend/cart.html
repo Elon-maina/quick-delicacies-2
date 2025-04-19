@@ -6,6 +6,7 @@
     <title>Cart</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <h1>Shopping Cart</h1>
@@ -23,7 +24,130 @@
         </tbody>
     </table>
     <h2>Total: Ksh <span id="total-price">0</span></h2>
-    <button id="complete-order">Complete Order</button>
+    <button id="complete-order">Order Now</button>
+    
+    <!-- Order Completion Modal (Hidden Initially) -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Enter Delivery Details</h2>
+            <form id="delivery-form">
+                <label for="phone">Phone Number:</label>
+                <input type="number" id="phone" placeholder="Your active phone number" required><br>
+
+                <label for="residence">Hall of Residence:</label>
+                <input type="text" id="residence" placeholder="Hostel name and Block(Maringo 34)" required><br>
+
+                <label for="room">Room Number:</label>
+                <input type="number" id="room" placeholder="Room number" required><br>
+
+                <h3>Total: Ksh <span id="order-total"></span></h3>
+                <h3>Delivery Fee: Ksh 20</h3>
+                <h2>Grand Total: Ksh <span id="grand-total"></span></h2>
+
+                <button type="submit" id="pay-now">Pay Now</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const completeOrderBtn = document.getElementById("complete-order");
+            const orderModal = document.getElementById("order-modal");
+            const closeModal = document.querySelector(".close");
+            const orderTotal = document.getElementById("order-total");
+            const grandTotal = document.getElementById("grand-total");
+            const cartTotalSpan = document.getElementById("total-price");
+            const deliveryForm = document.getElementById("delivery-form");
+
+            completeOrderBtn.addEventListener("click", function () {
+                let cartTotal = parseFloat(cartTotalSpan.innerText); // Get cart total
+                let deliveryFee = 20;
+                let grandTotalAmount = cartTotal + deliveryFee;
+
+                orderTotal.innerText = cartTotal.toFixed(2);
+                grandTotal.innerText = grandTotalAmount.toFixed(2);
+
+                orderModal.style.display = "block"; // Show modal
+            });
+
+            closeModal.addEventListener("click", function () {
+                orderModal.style.display = "none"; // Hide modal
+            });
+
+            window.onclick = function (event) {
+                if (event.target === orderModal) {
+                    orderModal.style.display = "none";
+                }
+            };
+
+            deliveryForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Get user inputs
+            let phone = document.getElementById("phone").value.trim();
+            let residence = document.getElementById("residence").value.trim();
+            let room = document.getElementById("room").value.trim();
+
+            // Validate inputs
+            if (!phone || !residence || !room) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Missing Details",
+                    text: "Please fill in all delivery details before proceeding."
+                });
+                return;
+            }
+
+            // Store user details in sessionStorage
+            sessionStorage.setItem("phone", phone);
+            sessionStorage.setItem("residence", residence);
+            sessionStorage.setItem("room", room);
+
+            // Get total price
+            let grandTotalAmount = parseFloat(grandTotal.innerText);
+
+            // Retrieve cart items properly
+            let cartItems = [];
+            let rows = document.querySelectorAll("#cart-items tr");
+
+            console.log("Cart Table Rows Found:", rows.length); // Debugging log
+
+            rows.forEach(row => {
+                let itemName = row.cells[0]?.innerText.trim();
+                let priceText = row.cells[1]?.innerText.trim();
+                let quantityInput = row.cells[2]?.querySelector("input"); // Select input inside the cell
+
+                let price = parseFloat(priceText.replace(/[^0-9.]/g, "")); // Extract numeric value from price
+                let quantity = quantityInput ? parseInt(quantityInput.value.trim(), 10) : NaN; // Get value from input
+
+                console.log(`Extracted Item:`, { itemName, priceText, quantityText: quantityInput?.value, price, quantity }); // Debugging log
+
+                if (itemName && !isNaN(price) && price > 0 && !isNaN(quantity) && quantity > 0) {
+                    cartItems.push({ itemName, price, quantity });
+                }
+            });
+
+            console.log("Final Cart Items Before Saving:", cartItems);
+
+            // Validate cart items
+            if (cartItems.length === 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Empty Cart",
+                    text: "Your cart is empty. Please add items before proceeding."
+                });
+                return;
+            }
+
+            // Store cart in localStorage
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+
+            // Redirect to payment.html with total amount as query param
+            window.location.href = "payment.html?total=" + grandTotalAmount;
+        });
+    });
+    </script>
     <style>
         body {
     background-color: #ffffff;
@@ -31,6 +155,71 @@
     margin: 0;
     padding: 0;
     }
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #f4e2ba; 
+    margin: 10% auto;
+    padding: 20px;
+    border: 3px solid #ff5722; 
+    width: 350px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Close Button */
+.close {
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #8b5a2b;
+}
+
+.close:hover {
+    color: red;
+}
+
+/* Input Fields */
+.modal-content input {
+    width: 90%;
+    padding: 8px;
+    margin: 8px 0;
+    border: 1px solid #8b5a2b;
+    border-radius: 5px;
+    background-color: #fffbe6;
+    font-size: 16px;
+}
+
+/* Payment Button */
+#pay-now {
+    background-color: #ff5722;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#pay-now:hover {
+    background-color: #ff3c00;
+}
+
+
     </style>
 </body>
 </html>

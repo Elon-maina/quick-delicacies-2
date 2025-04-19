@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Menu</title>
+    <title>Homepage</title>    
+    <script src="script.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <div class="header">
-        <h1>QUICK DELICACIES</h1>
-    <a href="cart.html" class="cart-icon">
-        <div class="cart-counter" id="cart-counter">0</div>
-        <i class="fas fa-shopping-cart"></i>
-    </a>
+        <h2>QUICK DELICACIES</h2>
     </div>
     <!-- Sidebar Navigation -->
     <label>
@@ -31,33 +29,229 @@
                     <li><a href="index.html">Menu</a></li>
                     <li><a href="about.html">About Us</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
-                    <li><button class="logout" onclick="logout()">Logout</button></li>
+                    <!-- The login, signup, and logout buttons will toggle based on login status -->
+                    <li id="login-btn" style="display: none;">
+                        <button class="login" onclick="window.location.href='login.html'">LOGIN</button>
+                    </li>
+                    <li id="signup-btn" style="display: none;">
+                        <button class="signup" onclick="window.location.href='signup.html'">SIGN-UP</button>
+                    </li>
+                    <li id="logout-btn" style="display: none;">
+                        <button class="logout" onclick="logout()">LOGOUT</button>
+                    </li>
                 </ul>
             </nav>
         </div>
     </label>
-    <div class="home-page">
-        <h1>welcome to quick delicacies</h1> 
-        <h1>you order we deliver</h1>  
+    <div class="main">
+        <h1>Welcome to QUICK DELICACIES dishes</h1>
+        <h2>"Satisfy Your Cravings in a Flash – Deliciousness Delivered to Your Doorstep!"</h2>
+        <div class="auth-buttons">
+            <button id="signup-btn" onclick="window.location.href='signup.html'">SIGN UP</button>
+            <button id="login-btn" onclick="window.location.href='login.html'">LOG IN</button>
+        </div>        
     </div>
+    <div class="background-container">
+        <img src="food-gallery/food11.avif" alt="Breakfast">
+        <img src="food-gallery/food22.avif" alt="lunch">
+        <img src="food-gallery/food33.avif" alt="supper">
+        <img src="food-gallery/food44.avif" alt="snack">
+        <img src="food-gallery/food55.avif" alt="meal">
+        <img src="food-gallery/food66.avif" alt="dessert">           
+  </div>
     <script>
-        function logout() {
-            localStorage.removeItem("token");
-            localStorage.removeItem("userId");
-            window.location.href = "login.html";
-        }
+                // Check if the user is logged in by checking sessionStorage
+                window.onload = function() {
+                    if (sessionStorage.getItem("userId")) {
+                        document.querySelectorAll("#logout-btn").forEach(el => el.style.display = "block");
+                        document.querySelectorAll("#login-btn").forEach(el => el.style.display = "none");
+                        document.querySelectorAll("#signup-btn").forEach(el => el.style.display = "none");
+                    } else {
+                        document.querySelectorAll("#login-btn").forEach(el => el.style.display = "block");
+                        document.querySelectorAll("#signup-btn").forEach(el => el.style.display = "block");
+                        document.querySelectorAll("#logout-btn").forEach(el => el.style.display = "none");
+                    }
+                };
+            // Logout function
+            function logout() {
+                // Clear sessionStorage to log out the user
+                sessionStorage.removeItem("userId");
+                sessionStorage.removeItem("userName");
+                sessionStorage.removeItem("email");
+                // Stay on the home page after logout
+                window.location.reload();
+            }
     </script>
-    <script src="script.js"></script>
+
     <style>
-        .home-page{
-            width: 200px;
-            height: 200px;
-            background-color: rgb(255, 255, 255);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
+ /* Header styling */
+.header {
+    background-color: #f3bf91;
+    font-weight: 500;
+    width: 100%;
+    position: fixed;
+    height: 140px; /* Adjusted header height */
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 90px;
+}
+
+/* Signup and login buttons */
+.signup, .login {
+    width: 90px;
+    font-size: 15px;
+    background-color: rgb(241, 202, 150);
+    border: 1px solid black;
+    padding: 5px;
+    margin: 5px;
+    font-weight: 700;
+    position: absolute;
+    left: 40px;
+}
+
+.signup {
+    bottom: 80px;
+}
+
+.login {
+    bottom: 40px;
+}
+
+.signup:hover, .login:hover {
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 4px;
+    color: green;
+    transform: scale(1.17);
+}
+
+/* Background container styling */
+.background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; 
+    overflow: hidden;
+}
+
+/* Background images styling */
+.background-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    opacity: 0; 
+    animation: slide 30s infinite; 
+}
+
+/* Keyframes for sliding animation */
+@keyframes slide {
+    0% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1; /* Fade in */
+    }
+    20% {
+        opacity: 1; /* Stay visible */
+    }
+    30% {
+        opacity: 0; /* Fade out */
+    }
+    100% {
+        opacity: 0; /* Stay hidden */
+    }
+}
+
+/* Delay each image's animation */
+.background-container img:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.background-container img:nth-child(2) {
+    animation-delay: 5s;
+}
+
+.background-container img:nth-child(3) {
+    animation-delay: 10s;
+}
+
+.background-container img:nth-child(4) {
+    animation-delay: 15s;
+}
+
+.background-container img:nth-child(5) {
+    animation-delay: 20s;
+}
+
+.background-container img:nth-child(6) {
+    animation-delay: 25s;
+}
+
+.background-container img:nth-child(7) {
+    animation-delay: 30s;
+}
+
+/* Main content styling */
+.main {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    width: auto;
+    height: auto;   
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Header tags */
+h1 {
+    color: #f07a13;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #333333; /* Dark gray color */
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* Authentication buttons */
+.auth-buttons {
+    display: flex;
+    gap: 10px; 
+    justify-content: center; 
+    align-items: center;
+}
+
+.auth-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    background-color: #f07a13; /* Red color */
+    color: white;
+    border-radius: 5px;
+    margin: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.auth-buttons button:hover {
+    transform: scale(1.05);
+}
+
+
     </style>
 </body>
 </html>

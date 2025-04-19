@@ -3,9 +3,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadMenu();
     await loadCart(); 
     updateCartCounter(); 
+    setupSearch(); // Set up the search functionality
 });
 
-//Verify Session Before Loading Content
+// Verify Session Before Loading Content
 async function verifySession() {
     try {
         const response = await fetch("http://localhost:5000/auth/session", {
@@ -27,7 +28,7 @@ async function verifySession() {
     }
 }
 
-//Load Menu with Credentials
+// Load Menu with Credentials
 async function loadMenu() {
     try {
         const response = await fetch("http://localhost:5000/menu", { credentials: "include" });
@@ -44,24 +45,47 @@ async function loadMenu() {
             return;
         }
 
-        menuContainer.innerHTML = data
-            .map(
-                (dish) => `
-                <div class="menu-item">
-                    <img src="${dish.image}" width="150">
-                    <h2 class="dish-name">${dish.name}</h2> 
-                    <h2 class="dish-price"> Ksh ${dish.price}</h2>
-                    <button class="add-to-cart" onclick="addToCart(${dish.id})">Add to Cart</button>
-                </div>
-            `
-            )
-            .join("");
+        // Store the full menu data for searching
+        window.fullMenuData = data; 
+
+        renderMenu(data); // Render the full menu initially
     } catch (error) {
         console.error("Error loading menu:", error);
     }
 }
 
-//Load Cart with Session Check & Update UI
+// Function to render menu items
+function renderMenu(data) {
+    const menuContainer = document.getElementById("menu");
+    menuContainer.innerHTML = data
+        .map(
+            (dish) => `
+            <div class="menu-item">
+                <img src="${dish.image}" width="150">
+                <h2 class="dish-name">${dish.name}</h2> 
+                <h2 class="dish-price"> Ksh ${dish.price}</h2>
+                <button class="add-to-cart" onclick="addToCart(${dish.id})">Add to Cart</button>
+            </div>
+        `
+        )
+        .join("");
+}
+
+// Set up search functionality
+function setupSearch() {
+    const searchInput = document.getElementById("search-input");
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.trim().toLowerCase();
+        if (query) {
+            const filteredMenu = window.fullMenuData.filter(dish => dish.name.toLowerCase().startsWith(query));
+            renderMenu(filteredMenu);
+        } else {
+            renderMenu(window.fullMenuData); // Show full menu if search is empty
+        }
+    });
+}
+
+// Load Cart with Session Check & Update UI
 async function loadCart() {
     try {
         const response = await fetch("http://localhost:5000/cart", { credentials: "include" });
@@ -115,7 +139,7 @@ async function loadCart() {
     }
 }
 
-//Update Cart Counter in Header
+// Update Cart Counter in Header
 function updateCartCounter() {
     fetch("http://localhost:5000/cart", { credentials: "include" })
         .then((response) => response.json())
@@ -133,7 +157,7 @@ function updateCartCounter() {
         .catch((error) => console.error("Error updating cart counter:", error));
 }
 
-//Update Quantity from Input Field
+// Update Quantity from Input Field
 async function updateQuantity(cartId, newQuantity) {
     if (newQuantity < 1) {
         console.warn("Quantity must be at least 1");
@@ -152,14 +176,14 @@ async function updateQuantity(cartId, newQuantity) {
     }
 }
 
-//Increment Cart Item Quantity
+// Increment Cart Item Quantity
 async function incrementItem(cartId) {
     let quantityInput = document.getElementById(`quantity-${cartId}`);
     quantityInput.value = parseInt(quantityInput.value) + 1;
     await updateQuantity(cartId, quantityInput.value);
 }
 
-//Decrement Cart Item Quantity
+// Decrement Cart Item Quantity
 async function decrementItem(cartId) {
     let quantityInput = document.getElementById(`quantity-${cartId}`);
     if (parseInt(quantityInput.value) > 1) {
@@ -168,9 +192,21 @@ async function decrementItem(cartId) {
     }
 }
 
-//Add to Cart with Session Check
+// Add to Cart with Session Check
 async function addToCart(dishId) {
     try {
+        // Check if the item is already in the cart
+        const cartResponse = await fetch("http://localhost:5000/cart", { credentials: "include" });
+        const cartData = await cartResponse.json();
+
+        // Check if the item exists in the cart
+        const itemInCart = cartData.find(item => item.dish_id === dishId);
+        if (itemInCart) {
+            alert("Item already in cart!"); // Display an alert
+            return; // Exit the function
+        }
+
+        // Proceed to add the item to the cart
         const response = await fetch("http://localhost:5000/cart/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -191,7 +227,7 @@ async function addToCart(dishId) {
     }
 }
 
-//Remove from Cart with Session Check
+// Remove from Cart with Session Check
 async function removeFromCart(cartId) {
     try {
         const response = await fetch(`http://localhost:5000/cart/remove/${cartId}`, {
