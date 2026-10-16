@@ -145,7 +145,7 @@ async function completeOrder() {
     // Disable submit button to prevent multiple submissions
     submitButton.disabled = true;
 
-    let response = await fetch("http://localhost:5000/api/orders/placeOrder", {
+    let response = await fetch("/api/orders/placeOrder", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -154,6 +154,13 @@ async function completeOrder() {
     });
 
     let result = await response.json();
+
+    if (response.status === 401) {
+        Swal.fire({ icon: "warning", title: "Session expired", text: "Please log in again." })
+            .then(() => { window.location.href = "login.html"; });
+        submitButton.disabled = false;
+        return;
+    }
 
     console.log("Server Response:", result); // Debugging log
 

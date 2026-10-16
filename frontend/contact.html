@@ -81,9 +81,11 @@
         </div>
     </footer>
     <script>
-        function logout() {
+        async function logout() {
+            await fetch("/auth/logout", { method: "POST" }).catch(() => {});
             localStorage.removeItem("token");
             localStorage.removeItem("userId");
+            sessionStorage.clear();
             window.location.href = "login.html";
         }
 
@@ -103,7 +105,7 @@
             }
 
             try {
-                const response = await fetch("http://localhost:5000/Admin/feedback", {
+                const response = await fetch("/api/feedback", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

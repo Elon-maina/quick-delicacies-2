@@ -5,6 +5,7 @@
     <title>Admin Panel</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="guard.js"></script>
 </head>
 <body>
     <div class="nav-bar">
@@ -19,8 +20,10 @@
             fetchOrders();
         });
     
+        function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+
         function fetchOrders() {
-            fetch("http://localhost:5000/api/orders")
+            fetch("/api/orders")
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -49,20 +52,20 @@
             const buttonStyle = isDelivered ? "background-color: red; color: white; cursor: not-allowed;" : "";
 
             orderDiv.innerHTML = `
-                <h2>Order #${order.id} - ${order.name}</h2>
-                <p><strong>Email:</strong> ${order.email}</p>
-                <p><strong>Phone:</strong> ${order.phone}</p>
-                <p><strong>Residence:</strong> ${order.residence}, Room ${order.room}</p>
-                <p><strong>Amount Paid:</strong> Ksh ${order.amountPaid}</p>
-                <p><strong>MPesa Code:</strong> ${order.mpesaCode}</p>
-                <p><strong>Status:</strong> ${order.status}</p>
+                <h2>Order #${escapeHtml(order.id)} - ${escapeHtml(order.name)}</h2>
+                <p><strong>Email:</strong> ${escapeHtml(order.email)}</p>
+                <p><strong>Phone:</strong> ${escapeHtml(order.phone)}</p>
+                <p><strong>Residence:</strong> ${escapeHtml(order.residence)}, Room ${escapeHtml(order.room)}</p>
+                <p><strong>Amount Paid:</strong> Ksh ${escapeHtml(order.amountPaid)}</p>
+                <p><strong>MPesa Code:</strong> ${escapeHtml(order.mpesaCode)}</p>
+                <p><strong>Status:</strong> ${escapeHtml(order.status)}</p>
                 <h3>Items:</h3>
                 <ul>
-                    ${order.items.map(item => `<li>${item.itemName} - Ksh ${item.price} x ${item.quantity}</li>`).join("")}
+                    ${order.items.map(item => `<li>${escapeHtml(item.itemName)} - Ksh ${escapeHtml(item.price)} x ${escapeHtml(item.quantity)}</li>`).join("")}
                 </ul>
                 <button 
-                    id="order-btn-${order.id}" 
-                    onclick="updateOrderStatus(${order.id}, 'Delivered')"
+                    id="order-btn-${Number(order.id)}" 
+                    onclick="updateOrderStatus(${Number(order.id)}, 'Delivered')"
                     ${isDelivered ? "disabled" : ""}
                     style="${buttonStyle}"
                 >
@@ -74,7 +77,7 @@
     }
   
         function updateOrderStatus(orderId, status) {
-        fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        fetch(`/api/orders/${orderId}/status`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"

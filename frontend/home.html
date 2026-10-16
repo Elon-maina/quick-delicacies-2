@@ -73,7 +73,8 @@
                     }
                 };
             // Logout function
-            function logout() {
+            async function logout() {
+                await fetch("/auth/logout", { method: "POST" }).catch(() => {});
                 // Clear sessionStorage to log out the user
                 sessionStorage.removeItem("userId");
                 sessionStorage.removeItem("userName");

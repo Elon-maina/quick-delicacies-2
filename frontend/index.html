@@ -202,10 +202,16 @@ h1 {
     </div>
 
     <script>
-    function logout() {
+    async function logout() {
+        await fetch("/auth/logout", { method: "POST" }).catch(() => {});
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
+        sessionStorage.clear();
         window.location.href = "login.html";
+    }
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
     }
 
     // Add event listeners for both input and icon
@@ -236,13 +242,13 @@ h1 {
                         data.forEach(item => {
                             searchResultsContainer.innerHTML += `
                                 <div class="menu-item">
-                                    <img src="${item.image}" alt="${item.name}">
-                                    <h3>${item.name}</h3>
-                                    <p class="price">$${item.price}</p>
+                                    <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}">
+                                    <h3>${escapeHtml(item.name)}</h3>
+                                    <p class="price">Ksh ${escapeHtml(item.price)}</p>
                                     <button class="add-to-cart" 
-                                        data-id="${item.id}"
-                                        data-name="${item.name}"
-                                        data-price="${item.price}">
+                                        data-id="${escapeHtml(item.id)}"
+                                        data-name="${escapeHtml(item.name)}"
+                                        data-price="${escapeHtml(item.price)}">
                                         Add to Cart
                                     </button>
                                 </div>

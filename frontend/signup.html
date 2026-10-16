@@ -87,7 +87,7 @@
         }
 
         try {
-            const response = await fetch("http://localhost:5000/auth/signup", {
+            const response = await fetch("/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password, confirmPassword }),
@@ -124,7 +124,7 @@
             }
 
             try {
-                const response = await fetch("http://localhost:5000/auth/verify", {
+                const response = await fetch("/auth/verify", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, otp: code })
@@ -169,7 +169,7 @@
             }, 1000);
 
             try {
-                const response = await fetch("http://localhost:5000/auth/resend-otp", {
+                const response = await fetch("/auth/resend-otp", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email })

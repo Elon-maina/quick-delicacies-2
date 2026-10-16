@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Verify Session Before Loading Content
 async function verifySession() {
     try {
-        const response = await fetch("http://localhost:5000/auth/session", {
+        const response = await fetch("/auth/session", {
             method: "GET",
             credentials: "include" 
         });
@@ -31,7 +31,7 @@ async function verifySession() {
 // Load Menu with Credentials
 async function loadMenu() {
     try {
-        const response = await fetch("http://localhost:5000/menu", { credentials: "include" });
+        const response = await fetch("/menu", { credentials: "include" });
 
         if (!response.ok) {
             throw new Error(`Error: ${response.status} - ${response.statusText}`);
@@ -54,6 +54,8 @@ async function loadMenu() {
     }
 }
 
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+
 // Function to render menu items
 function renderMenu(data) {
     const menuContainer = document.getElementById("menu");
@@ -61,10 +63,10 @@ function renderMenu(data) {
         .map(
             (dish) => `
             <div class="menu-item">
-                <img src="${dish.image}" width="150">
-                <h2 class="dish-name">${dish.name}</h2> 
-                <h2 class="dish-price"> Ksh ${dish.price}</h2>
-                <button class="add-to-cart" onclick="addToCart(${dish.id})">Add to Cart</button>
+                <img src="${escapeHtml(dish.image)}" width="150">
+                <h2 class="dish-name">${escapeHtml(dish.name)}</h2> 
+                <h2 class="dish-price"> Ksh ${escapeHtml(dish.price)}</h2>
+                <button class="add-to-cart" onclick="addToCart(${Number(dish.id)})">Add to Cart</button>
             </div>
         `
         )
@@ -88,7 +90,7 @@ function setupSearch() {
 // Load Cart with Session Check & Update UI
 async function loadCart() {
     try {
-        const response = await fetch("http://localhost:5000/cart", { credentials: "include" });
+        const response = await fetch("/cart", { credentials: "include" });
 
         if (response.status === 401) {
             console.warn("Session expired. Logging out...");
@@ -118,8 +120,8 @@ async function loadCart() {
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${item.name}</td>
-                <td>Ksh ${item.price.toFixed(2)}</td>
+                <td>${escapeHtml(item.name)}</td>
+                <td>Ksh ${Number(item.price).toFixed(2)}</td>
                 <td>
                     <button onclick="decrementItem(${item.id})" class="quantity-button">-</button>
                     <input type="number" id="quantity-${item.id}" class="quantity" value="${item.quantity}" min="1" onchange="updateQuantity(${item.id}, this.value)">
@@ -141,7 +143,7 @@ async function loadCart() {
 
 // Update Cart Counter in Header
 function updateCartCounter() {
-    fetch("http://localhost:5000/cart", { credentials: "include" })
+    fetch("/cart", { credentials: "include" })
         .then((response) => response.json())
         .then((data) => {
             const cartCounter = document.getElementById("cart-counter");
@@ -164,7 +166,7 @@ async function updateQuantity(cartId, newQuantity) {
         return;
     }
     try {
-        await fetch(`http://localhost:5000/cart/update/${cartId}`, {
+        await fetch(`/cart/update/${cartId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -196,7 +198,7 @@ async function decrementItem(cartId) {
 async function addToCart(dishId) {
     try {
         // Check if the item is already in the cart
-        const cartResponse = await fetch("http://localhost:5000/cart", { credentials: "include" });
+        const cartResponse = await fetch("/cart", { credentials: "include" });
         const cartData = await cartResponse.json();
 
         // Check if the item exists in the cart
@@ -207,7 +209,7 @@ async function addToCart(dishId) {
         }
 
         // Proceed to add the item to the cart
-        const response = await fetch("http://localhost:5000/cart/add", {
+        const response = await fetch("/cart/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -230,7 +232,7 @@ async function addToCart(dishId) {
 // Remove from Cart with Session Check
 async function removeFromCart(cartId) {
     try {
-        const response = await fetch(`http://localhost:5000/cart/remove/${cartId}`, {
+        const response = await fetch(`/cart/remove/${cartId}`, {
             method: "DELETE",
             credentials: "include",
         });

@@ -1,27 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const { authenticateUser } = require("../middleware/authMiddleware");
 
-//Middleware to check if user is logged in
-const authenticateUser = (req, res, next) => {
-    console.log("Session Data:", req.session); // Debugging
-    if (!req.session || !req.session.user) {
-        return res.status(401).json({ error: "Unauthorized. Please log in first." });
-    }
-    req.user_id = req.session.user?.id;
-    next();
+const toQuantity = (value) => {
+    const n = Number(value);
+    return Number.isInteger(n) && n >= 1 && n <= 100 ? n : null;
 };
 
 //Get cart items
 router.get("/", authenticateUser, (req, res) => {
-    const user_id = req.user_id;
-    const sql = `SELECT cart.id, cart.dish_id, cart.quantity, cart.total_price, menu.name, menu.price 
-                 FROM cart 
-                 JOIN menu ON cart.dish_id = menu.id 
+    const sql = `SELECT cart.id, cart.dish_id, cart.quantity, cart.total_price, menu.name, menu.price
+                 FROM cart
+                 JOIN menu ON cart.dish_id = menu.id
                  WHERE cart.user_id = ?`;
-    db.query(sql, [user_id], (err, results) => {
+    db.query(sql, [req.user_id], (err, results) => {
         if (err) {
-            console.error("Error fetching cart:", err);
+            console.error("Error fetching cart:", err.message);
             return res.status(500).json({ error: "Internal Server Error" });
         }
         res.json(results);
@@ -30,119 +25,84 @@ router.get("/", authenticateUser, (req, res) => {
 
 //Add item to cart
 router.post("/add", authenticateUser, (req, res) => {
-    const { dish_id, quantity } = req.body;
-    const user_id = req.user_id;
+    const dishId = Number(req.body.dish_id);
+    const quantity = toQuantity(req.body.quantity ?? 1);
+    if (!Number.isInteger(dishId) || dishId < 1 || !quantity) {
+        return res.status(400).json({ error: "Invalid dish or quantity" });
+    }
 
-    const sqlInsert = `INSERT INTO cart (user_id, dish_id, quantity, total_price) 
-                       VALUES (?, ?, ?, (SELECT price FROM menu WHERE id = ?) * ?) 
-                       ON DUPLICATE KEY UPDATE 
-                       quantity = quantity + VALUES(quantity), 
-                       total_price = (quantity + VALUES(quantity)) * (SELECT price FROM menu WHERE id = ?);`;
-    
-    db.query(sqlInsert, [user_id, dish_id, quantity, dish_id, quantity, dish_id], (err, result) => {
+    const sqlInsert = `INSERT INTO cart (user_id, dish_id, quantity, total_price)
+                       SELECT ?, menu.id, ?, menu.price * ? FROM menu WHERE menu.id = ?
+                       ON DUPLICATE KEY UPDATE
+                       quantity = cart.quantity + VALUES(quantity),
+                       total_price = (cart.quantity) * (SELECT price FROM menu WHERE id = ?)`;
+
+    db.query(sqlInsert, [req.user_id, quantity, quantity, dishId, dishId], (err, result) => {
         if (err) {
-            console.error("Error adding to cart:", err);
+            console.error("Error adding to cart:", err.message);
             return res.status(500).json({ error: "Internal Server Error" });
         }
+        if (result.affectedRows === 0) return res.status(404).json({ error: "Dish not found" });
         res.json({ success: true, message: "Item added to cart" });
     });
 });
 
-//Increment item quantity
-router.put("/increment/:id", authenticateUser, (req, res) => {
-    const { id } = req.params;
-    const user_id = req.user_id;
+// Change the quantity of one cart row by a fixed step (+1 / -1). Removes the row when it reaches zero.
+function step(delta) {
+    return (req, res) => {
+        const sqlCheck = "SELECT quantity FROM cart WHERE id = ? AND user_id = ?";
+        db.query(sqlCheck, [req.params.id, req.user_id], (err, result) => {
+            if (err) {
+                console.error("Error checking item:", err.message);
+                return res.status(500).json({ error: "Internal Server Error" });
+            }
+            if (result.length === 0) return res.status(404).json({ error: "Item not found in cart" });
 
-                    const sqlUpdate = `UPDATE cart 
-                JOIN menu ON cart.dish_id = menu.id 
-                SET cart.quantity = ?, 
-                    cart.total_price = ? * menu.price 
-                WHERE cart.id = ? AND cart.user_id = ?`;
-    db.query(sqlUpdate, [id, user_id], (err) => {
+            const next = result[0].quantity + delta;
+            if (next < 1) {
+                return db.query("DELETE FROM cart WHERE id = ? AND user_id = ?", [req.params.id, req.user_id], (err) => {
+                    if (err) return res.status(500).json({ error: "Internal Server Error" });
+                    res.json({ success: true, message: "Item removed from cart" });
+                });
+            }
+            setQuantity(req, res, next);
+        });
+    };
+}
+
+function setQuantity(req, res, quantity) {
+    const sqlUpdate = `UPDATE cart
+                       JOIN menu ON cart.dish_id = menu.id
+                       SET cart.quantity = ?,
+                           cart.total_price = ? * menu.price
+                       WHERE cart.id = ? AND cart.user_id = ?`;
+    db.query(sqlUpdate, [quantity, quantity, req.params.id, req.user_id], (err, result) => {
         if (err) {
-            console.error("Error updating quantity:", err);
+            console.error("Error updating quantity:", err.message);
             return res.status(500).json({ error: "Internal Server Error" });
         }
-        res.json({ success: true, message: "Item quantity increased" });
+        if (result.affectedRows === 0) return res.status(404).json({ error: "Item not found in cart" });
+        res.json({ success: true, message: "Quantity updated" });
     });
-});
+}
 
-//Decrement item quantity
-router.put("/decrement/:id", authenticateUser, (req, res) => {
-    const { id } = req.params;
-    const user_id = req.user_id;
-
-    const sqlCheck = "SELECT quantity FROM cart WHERE id = ? AND user_id = ?";
-    db.query(sqlCheck, [id, user_id], (err, result) => {
-        if (err) {
-            console.error("Error checking item:", err);
-            return res.status(500).json({ error: "Internal Server Error" });
-        }
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: "Item not found in cart" });
-        }
-
-        if (result[0].quantity > 1) {
-            const sqlUpdate = `UPDATE cart 
-                               JOIN menu ON cart.dish_id = menu.id 
-                               SET cart.quantity = cart.quantity - 1, 
-                                   cart.total_price = (cart.quantity - 1) * menu.price 
-                               WHERE cart.id = ? AND cart.user_id = ?`;
-            db.query(sqlUpdate, [id, user_id], (err) => {
-                if (err) {
-                    console.error("Error updating quantity:", err);
-                    return res.status(500).json({ error: "Internal Server Error" });
-                }
-                res.json({ success: true, message: "Item quantity decreased" });
-            });
-        } else {
-            const sqlDelete = "DELETE FROM cart WHERE id = ? AND user_id = ?";
-            db.query(sqlDelete, [id, user_id], (err) => {
-                if (err) {
-                    console.error("Error deleting item:", err);
-                    return res.status(500).json({ error: "Internal Server Error" });
-                }
-                res.json({ success: true, message: "Item removed from cart" });
-            });
-        }
-    });
-});
+router.put("/increment/:id", authenticateUser, step(+1));
+router.put("/decrement/:id", authenticateUser, step(-1));
 
 //Update item quantity manually
 router.put("/update/:id", authenticateUser, (req, res) => {
-    const { id } = req.params;
-    const { quantity } = req.body;
-    const user_id = req.user_id;
-
-    if (quantity < 1) {
-        return res.status(400).json({ error: "Quantity must be at least 1" });
+    const quantity = toQuantity(req.body.quantity);
+    if (!quantity) {
+        return res.status(400).json({ error: "Quantity must be a whole number from 1 to 100" });
     }
-
-    const sqlUpdate = `UPDATE cart 
-                       JOIN menu ON cart.dish_id = menu.id 
-                       SET cart.quantity = ?, 
-                           cart.total_price = ? * menu.price 
-                       WHERE cart.id = ? AND cart.user_id = ?`;
-
-    db.query(sqlUpdate, [quantity, quantity, id, user_id], (err) => {
-        if (err) {
-            console.error("Error updating quantity:", err);
-            return res.status(500).json({ error: "Internal Server Error" });
-        }
-        res.json({ success: true, message: "Quantity updated" });
-    });
+    setQuantity(req, res, quantity);
 });
 
 //Remove item from cart
 router.delete("/remove/:id", authenticateUser, (req, res) => {
-    const { id } = req.params;
-    const user_id = req.user_id;
-
-    const sqlDelete = "DELETE FROM cart WHERE id = ? AND user_id = ?";
-    db.query(sqlDelete, [id, user_id], (err) => {
+    db.query("DELETE FROM cart WHERE id = ? AND user_id = ?", [req.params.id, req.user_id], (err) => {
         if (err) {
-            console.error("Error deleting item:", err);
+            console.error("Error deleting item:", err.message);
             return res.status(500).json({ error: "Internal Server Error" });
         }
         res.json({ success: true, message: "Item removed from cart" });
